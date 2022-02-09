@@ -40,7 +40,6 @@ def getStart(lvl, course=1):
 
 def coinHit(lvl):
     for x in course1[lvl]:
-        if len(x) > 4:
-            if x[4] == 'coin':
-                x[5] = False
+        if len(x) > 4 and x[4] == 'coin':
+            x[5] = False
 

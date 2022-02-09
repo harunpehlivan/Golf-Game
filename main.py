@@ -44,8 +44,6 @@ import sys
 # INITIALIZATION
 pygame.init()
 
-SOUND = False
-
 winwidth = 1080
 winheight = 600
 pygame.display.set_caption('Super Minigolf')
@@ -90,8 +88,7 @@ put = False
 shoot = False
 start = True
 
-# LOAD MUSIC
-if SOUND:
+if SOUND := False:
     wrong = pygame.mixer.Sound(os.path.join('sounds', 'wrong12.wav'))
     puttSound = pygame.mixer.Sound(os.path.join('sounds', 'putt.wav'))
     inHole = pygame.mixer.Sound(os.path.join('sounds', 'inHole.wav'))
@@ -250,29 +247,20 @@ def endScreen(): # Display this screen when the user completes trhe course
         if l[0] == 'coins':
             oldcoins = str(l[1]).strip()
 
-    file = open('scores.txt', 'w')
-    if str(oldscore).lower() != 'none':
-        if sheet.getScore() < int(oldscore):
+    with open('scores.txt', 'w') as file:
+        if str(oldscore).lower() == 'none':
+            file.write('score ' + str(sheet.getScore()) + '\n')
+        elif sheet.getScore() < int(oldscore):
             text = myFont.render('New Best!', 1, (64, 64, 64))
             win.blit(text, (winwidth/2 - text.get_width()/2, 130))
             pygame.display.update()
             file.write('score ' + str(sheet.getScore()) + '\n')
-            file.write('coins ' + str(int(oldcoins) + coins) + '\n')
         else:
             file.write('score ' + str(oldscore) + '\n')
-            file.write('coins ' + str(int(oldcoins) + coins) + '\n')
-    else:
-        file.write('score ' + str(sheet.getScore()) + '\n')
         file.write('coins ' + str(int(oldcoins) + coins) + '\n')
-
-    co = 0
-    for line in f:
-        if co > 2:
-            file.write(line)
-        co += 1
-
-    file.close()
-
+        for co, line in enumerate(f):
+            if co > 2:
+                file.write(line)
     # Wait
     loop = True
     while loop:
@@ -362,7 +350,7 @@ def setup(level):  # Setup objects for the level from module courses
 def fade():  # Fade out screen when player gets ball in hole
     fade = pygame.Surface((winwidth, winheight))
     fade.fill((0,0,0))
-    for alpha in range(0, 300):
+    for alpha in range(300):
         fade.set_alpha(alpha)
         redrawWindow(ballStationary, None, False, False)
         win.blit(fade, (0,0))
@@ -542,18 +530,17 @@ def onGreen():  # Determine if we are on the green
 
     for i in objects:
         if i[4] == 'green':
-            if ballStationary[1] < i[1] + i[3] and ballStationary[1] > i[1] - 20 and ballStationary[0] > i[0] and ballStationary[0] < i[0] + i[2]:
-                return True
-            else:
-                return False
+            return (
+                ballStationary[1] < i[1] + i[3]
+                and ballStationary[1] > i[1] - 20
+                and ballStationary[0] > i[0]
+                and ballStationary[0] < i[0] + i[2]
+            )
 
 
 def overHole(x,y):  # Determine if we are over top of the hole
     if x > hole[0] - 6 and x < hole[0] + 6:
-        if y > hole[1] - 13 and y < hole[1] + 10:
-            return True
-        else:
-            return False
+        return y > hole[1] - 13 and y < hole[1] + 10
     else:
         return False
 
